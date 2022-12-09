@@ -1,2 +1,0 @@
-
-// Hello there ! , you are seeing this message because i feel i got betrayed and i guess used for my development skills and i just want to make it very clear i no longer have any affiliation with anyone in this repo and if you want to check out my store just add me on discord @ Ghost.#4736 , i am a Javascript developer along with a bit of LUA and provide support to ALL my customers thank you <3 
