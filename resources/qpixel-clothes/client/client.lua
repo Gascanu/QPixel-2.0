@@ -444,22 +444,24 @@ RegisterNUICallback("closeNui", function(data)
     playerSkin = GetCurrentPed()
 
     if data.buy and data.amount then
-        local canPurchase = RPC.execute("qpixel-clothes:purchaseClothes", data.type, data.amount) 
+        vRP.TriggerServerCallback("qpixel-clothes:purchaseClothes", function(canPurchase)
+        -- local canPurchase = RPC.execute("qpixel-clothes:purchaseClothes", data.type, data.amount) 
         print(canPurchase)
-        if canPurchase then
-            TriggerEvent("DoLongHudText","Successfully Purchased.", 1)
-
-            TriggerServerEvent("qpixel-clothes:insert_character_current", playerSkin)
-            TriggerServerEvent("qpixel-clothes:insert_character_face", playerSkin) 
-            TriggerServerEvent("qpixel-clothes:insert_character_face_blend", getPedAppearance(PlayerPedId())) 
-            TriggerServerEvent("qpixel-clothes:set_tats", getPedAppearance(PlayerPedId()))
-            --TriggerServerEvent("raid_clothes:set_tats", currentTats)
-
-           --TriggerServerEvent('qpixel-clothes:saveSkin', getPedAppearance(PlayerPedId()))
-        elseif not canPurchase and playerApperance then
-            TriggerEvent("DoLongHudText","Not enough bread.", 2)
-            setPedAppearance(PlayerPedId(), playerApperance)
-        end
+            if canPurchase then
+                TriggerEvent("DoLongHudText","Successfully Purchased.", 1)
+            
+                TriggerServerEvent("qpixel-clothes:insert_character_current", playerSkin)
+                TriggerServerEvent("qpixel-clothes:insert_character_face", playerSkin) 
+                TriggerServerEvent("qpixel-clothes:insert_character_face_blend", getPedAppearance(PlayerPedId())) 
+                TriggerServerEvent("qpixel-clothes:set_tats", getPedAppearance(PlayerPedId()))
+                --TriggerServerEvent("raid_clothes:set_tats", currentTats)
+            
+               --TriggerServerEvent('qpixel-clothes:saveSkin', getPedAppearance(PlayerPedId()))
+            elseif not canPurchase and playerApperance then
+                TriggerEvent("DoLongHudText","Not enough bread.", 2)
+                setPedAppearance(PlayerPedId(), playerApperance)
+            end
+        end,data.type, data.amount)
     end
 end)
 
@@ -1297,16 +1299,16 @@ RegisterNUICallback("changeHairColor", function(data)
     end
 end)
 
-local testoCat = {
-    {"ZONE_TORSO", 0},
-    {"ZONE_HEAD", 0},
-    {"ZONE_LEFT_ARM", 0},
-    {"ZONE_RIGHT_ARM", 0},
-    {"ZONE_LEFT_LEG", 0},
-    {"ZONE_RIGHT_LEG", 0},
-    {"ZONE_UNKNOWN", 0},
-    {"ZONE_NONE", 0},
-}
+-- local testoCat = {
+--     {"ZONE_TORSO", 0},
+--     {"ZONE_HEAD", 0},
+--     {"ZONE_LEFT_ARM", 0},
+--     {"ZONE_RIGHT_ARM", 0},
+--     {"ZONE_LEFT_LEG", 0},
+--     {"ZONE_RIGHT_LEG", 0},
+--     {"ZONE_UNKNOWN", 0},
+--     {"ZONE_NONE", 0},
+-- }
 
 function SetSkin(model, setDefault)
     -- TODO: If not isCop and model not in copModellist, do below.
@@ -1441,7 +1443,7 @@ end
 
 function SetTats(tattoos, id, index)
     local ped = PlayerPedId()
-    local isMale = isPedMale(ped)
+    -- local isMale = isPedMale(ped)
     local infos = tattoos[id][index]
 
     if not playerTattoos[id] then
@@ -1460,16 +1462,10 @@ function SetTats(tattoos, id, index)
 
 
     if playerTattoos[id] then
-        table.insert(playerTattoos[id], {{
-            collection = infos.collection,
-            hash = infos.hashMale
-        }})
+        playerTattoos[id] = {collection = infos.collection,hash = infos.hashMale}
     else
-        playerTattoos[id] = {
-            {            
-                collection = infos.collection,
-                hash = infos.hashMale
-            }
-        }
+        -- playerTattoos[id] = {collection = infos.collection,hash = infos.hashMale}
+        -- }
+        playerTattoos[id] = {collection = infos.collection,hash = infos.hashMale}
     end
 end

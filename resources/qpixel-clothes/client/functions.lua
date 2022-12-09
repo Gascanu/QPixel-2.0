@@ -252,10 +252,10 @@ function getItems(max)
     local values = {}
 
     for i = 1, max, 1 do
-        table.insert(values, {
+        values[#values+1] = {
             name = "Texture " .. i,
             id = i 
-        })
+        }
     end
 
     return values
@@ -268,8 +268,6 @@ end
 
 function setPedAppearance(player, data)
     if not data then return end
-    local ped = GetPlayerPed(-1)
-
     local excludedFromFreemodeModels = {
         [0] = true,
         [2] = true,
