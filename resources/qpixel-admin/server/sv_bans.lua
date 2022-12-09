@@ -28,54 +28,54 @@ function GetBanTime(Expires)
     return Expiring, ExpD
 end
 
-function GetIds(src)
-    local ids = {}
+-- function GetIds(src)
+--     local ids = {}
 
-    for k,v in pairs(GetPlayerIdentifiers(src)) do
-        if string.sub(v, 1, string.len("steam:")) == "steam:" then
-            ids["hex"] = v
-        elseif string.sub(v, 1, string.len("license:")) == "license:" then
-            ids["license"] = v
-        elseif string.sub(v, 1, string.len("xbl:")) == "xbl:" then
-            ids["xbl"] = v
-        elseif string.sub(v, 1, string.len("ip:")) == "ip:" then
-            ids["ip"] = v
-        elseif string.sub(v, 1, string.len("discord:")) == "discord:" then
-            ids["discord"] = v
-        elseif string.sub(v, 1, string.len("live:")) == "live:" then
-            ids["live"] = v
-        end
-    end
+--     for k,v in pairs(GetPlayerIdentifiers(src)) do
+--         if string.sub(v, 1, string.len("steam:")) == "steam:" then
+--             ids["hex"] = v
+--         elseif string.sub(v, 1, string.len("license:")) == "license:" then
+--             ids["license"] = v
+--         elseif string.sub(v, 1, string.len("xbl:")) == "xbl:" then
+--             ids["xbl"] = v
+--         elseif string.sub(v, 1, string.len("ip:")) == "ip:" then
+--             ids["ip"] = v
+--         elseif string.sub(v, 1, string.len("discord:")) == "discord:" then
+--             ids["discord"] = v
+--         elseif string.sub(v, 1, string.len("live:")) == "live:" then
+--             ids["live"] = v
+--         end
+--     end
 
-    if not ids["ip"] then
-        ids["ip"] = GetPlayerEndpoint(src)
-    end
+--     if not ids["ip"] then
+--         ids["ip"] = GetPlayerEndpoint(src)
+--     end
 
-    if not ids["steamid"] and ids["hex"] then
-        ids["steamid"] = HexIdToSteamId(ids["hex"])
-    end
+--     if not ids["steamid"] and ids["hex"] then
+--         ids["steamid"] = HexIdToSteamId(ids["hex"])
+--     end
 
-    return ids
-end
+--     return ids
+-- end
 
-function HexIdToSteamId(hexid)
-    local cid = HexIdToComId(hexid)
-    local steam64 = math.floor(tonumber(string.sub( cid, 2)))
-    local a = steam64 % 2 == 0 and 0 or 1
-    local b = math.floor(math.abs(6561197960265728 - steam64 - a) / 2)
-    local sid = "STEAM0:"..a..":"..(a == 1 and b -1 or b)
-    return sid
-end
+-- function HexIdToSteamId(hexid)
+--     local cid = HexIdToComId(hexid)
+--     local steam64 = math.floor(tonumber(string.sub( cid, 2)))
+--     local a = steam64 % 2 == 0 and 0 or 1
+--     local b = math.floor(math.abs(6561197960265728 - steam64 - a) / 2)
+--     local sid = "STEAM0:"..a..":"..(a == 1 and b -1 or b)
+--     return sid
+-- end
 
-function HexIdToComId(hexid)
-    return math.floor(tonumber(string.sub(hexid, 7), 16))
-end
+-- function HexIdToComId(hexid)
+--     return math.floor(tonumber(string.sub(hexid, 7), 16))
+-- end
 
-function IsSteamId(id)
-    id = tostring(id)
-    if not id then return false end
-    if string.match(id, "^STEAM[01]:[01]:%d+$") then return true else return false end
-end
+-- function IsSteamId(id)
+--     id = tostring(id)
+--     if not id then return false end
+--     if string.match(id, "^STEAM[01]:[01]:%d+$") then return true else return false end
+-- end
 
 function stringsplit(string, split)
     local t = {}
@@ -92,7 +92,7 @@ function stringsplit(string, split)
     return t
 end
 
-function getIdentifier(self, src, identifier)
+function getIdentifier(src, identifier)
     local ids = GetPlayerIdentifiers(src)
     for k, v in ipairs(ids) do
         for _, id in ipairs(stringsplit(v, ":")) do
@@ -104,14 +104,12 @@ function getIdentifier(self, src, identifier)
     return false
 end
 
-function getUserToken(self, src)
+function getUserToken(src)
     local tokens = {}
     for i = 0, GetNumPlayerTokens(src) do
-        table.insert(tokens, GetPlayerToken(src, i))
+        tokens[#tokens+1] =  GetPlayerToken(src, i)
     end
-
     Wait(100)
-
     if (#tokens > 0) then
         return tokens
     else
@@ -128,15 +126,11 @@ function generateUniqueBanId()
     end)
 end
 
-local function getDate2(sec)
-    local date = os.date("!*t", sec)
-    return date["day"]-1, date["hour"], date["min"], date["sec"]
-end
 
 function isVerifiedAdmin(src)
-    local user = exports["qpixel-base"]:getModule("Player"):GetUser(src)
-	local rank = user:getRank()
-    if rank ~= 'user' then 
+    local user = vRP.getUserId(src)
+	local rank = vRP.isUserAdministrator(user)
+    if rank then 
         return true 
     end 
     return false
@@ -145,24 +139,15 @@ end
 function getevAdminifiers(pPlayer, pType)
     local Retval = nil
     local steamid  = ""
-    local license2  = ""
     local discord  = ""
-    local xbl      = ""
-    local liveid   = ""
     local ip       = ""
     for e,k in pairs(GetPlayerIdentifiers(pPlayer))do
         if string.sub(k, 1, string.len("steam:")) == "steam:" then
             steamid = k
-        elseif string.sub(k, 1, string.len("license:")) == "license:" then
-            license2 = k
-        elseif string.sub(k, 1, string.len("xbl:")) == "xbl:" then
-            xbl  = k
         elseif string.sub(k, 1, string.len("ip:")) == "ip:" then
             ip = k
         elseif string.sub(k, 1, string.len("discord:")) == "discord:" then
             discord = k
-        elseif string.sub(k, 1, string.len("live:")) == "live:" then
-            liveid = k
         end
         if pType == "discord" then
             Retval = discord
@@ -184,18 +169,18 @@ RegisterNetEvent("qpixel:admin/server/ban-player", function(ServerId, Expires, R
     local banId = generateUniqueBanId()
     local banLength = Expires
     local pBanDate = os.time()
-    local bannedBy = "Anticheat"
+    local bannedBy = "AntiCheat"
     local pUnbanDate = nil
     local pReason = Reason
-    local pSteamId = getIdentifier(self, ServerId, "steam")
-    local pLicense = getIdentifier(self, ServerId, "license")
-    local pLicense2 = getIdentifier(self, ServerId, "license2")
-    local pXbox = getIdentifier(self, ServerId, "xbox")
-    local pLive = getIdentifier(self, ServerId, "live")
-    local pDiscord = getIdentifier(self, ServerId, "discord")
-    local pCFX = getIdentifier(self, ServerId, "fivem")
-    local pIp = getIdentifier(self, ServerId, "ip")
-    local pTokens = getUserToken(self, ServerId)
+    local pSteamId = getIdentifier(ServerId, "steam")
+    local pLicense = getIdentifier(ServerId, "license")
+    local pLicense2 = vRP.getUserId(ServerId)
+    local pXbox = getIdentifier(ServerId, "xbox")
+    local pLive = getIdentifier(ServerId, "live")
+    local pDiscord = getIdentifier(ServerId, "discord")
+    local pCFX = getIdentifier(ServerId, "fivem")
+    local pIp = getIdentifier(ServerId, "ip")
+    local pTokens = getUserToken(ServerId)
     local pTokenData = json.encode(pTokens)
     if banLength == 0 then
         pUnbanDate = 0
@@ -203,9 +188,9 @@ RegisterNetEvent("qpixel:admin/server/ban-player", function(ServerId, Expires, R
         pUnbanDate = math.floor(os.time() + (banLength * 86400))
     end
 
-    print(banId, pSteamId, GetPlayerName(ServerId), pLicense, pLicense2, pXbox, pLive, pDiscord, pCFX, pIp, pTokenData, bannedBy, pBanDate,pUnbanDate, pReason)
+    -- print(banId, pSteamId, GetPlayerName(ServerId), pLicense, pLicense2, pXbox, pLive, pDiscord, pCFX, pIp, pTokenData, bannedBy, pBanDate,pUnbanDate, pReason)
 
-    local insertBan = SQL.execute("INSERT INTO bans (banid, steam, name, license, license2, xbox, live, discord, cfx, ip, token, bannedby, bannedon, expire, reason) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", {banId, pSteamId, GetPlayerName(ServerId), pLicense, pLicense2, pXbox, pLive, pDiscord, pCFX, pIp, pTokenData, bannedBy, pBanDate,pUnbanDate, pReason})
+    exports.oxmysql:query("INSERT INTO bans (banid, steam, name, license, license2, xbox, live, discord, cfx, ip, token, bannedby, bannedon, expire, reason) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", {banId, pSteamId, GetPlayerName(ServerId), pLicense, pLicense2, pXbox, pLive, pDiscord, pCFX, pIp, pTokenData, bannedBy, pBanDate,pUnbanDate, pReason})
     Wait(500)
 
     local unbanDate
@@ -226,9 +211,9 @@ RegisterNetEvent("qpixel:admin:unBan", function(pBanID)
     local src = source
     if not isVerifiedAdmin(src) then return end
 
-    local BanData = MySQL.query.await('SELECT * FROM bans WHERE banid = ?', {pBanID})
+    local BanData = exports.oxmysql:querySync('SELECT ! FROM bans WHERE banid = ?', {pBanID})
     if BanData and BanData[1] ~= nil then
-        MySQL.query('DELETE FROM bans WHERE banid = ?', {pBanID})
+        exports.oxmysql:query('DELETE FROM bans WHERE banid = ?', {pBanID})
         TriggerClientEvent('DoLongHudText', src, "You successfully unbanned the player.", 1)
         loadBanListMenu()
     else

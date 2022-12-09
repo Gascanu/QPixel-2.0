@@ -41,7 +41,7 @@ exports('registerKeyMapping', function(name, category, description, onKeyDownCom
     local desc = "(" .. category .. ")" .. " " .. description
 
     cmdStringDown = "+cmd_wrapper__" .. onKeyDownCommand
-    cmdStringUp = "-cmd_wrapper__" .. onKeyDownCommand
+    cmdStringUp = "-cmd_wrapper__" .. onKeyUpCommand
     RegisterCommand(cmdStringDown, function()
       if not shouldExecuteBind then return end
       if event then TriggerEvent("qpixel-binds:keyEvent", name, true) end

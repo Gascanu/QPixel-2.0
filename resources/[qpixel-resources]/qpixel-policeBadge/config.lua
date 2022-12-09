@@ -17,11 +17,3 @@ local Keys = {
 Config.Useitem = 'lspd_badge'
 Config.Distance = 7.0 --How many meters to show to the people around when players use their badges
 Config.CloseButton = Keys["BACKSPACE"] 
------------------------------------------------------------------
--- STEAM IDENTIFIERS -- STEAM IDENTIFIERS -- STEAM IDENTIFIERS --
------------------------------------------------------------------
-Config.SteamIdentifiers = {
-	["steam:110000107bc1bd0"] = "https://media.discordapp.net/attachments/840353199885123635/858385819706720336/unknown.png",
-	["steam:changeme"] = "changeme.png",
-	["steam:changeme"] = "changeme.png"
-}

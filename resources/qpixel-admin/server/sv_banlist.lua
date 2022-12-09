@@ -27,23 +27,22 @@ CreateThread(function()
 end)
 
 function getPrioType(pSource)
-	local pSrc = pSource
-	local user = exports['qpixel-base']:getModule("Player"):GetUser(pSource)
+	-- local pSrc = pSource
+	-- local user = exports['qpixel-base']:getModule("Player"):GetUser(pSource)
 	return "Prio Broke:) ~ loleris"
 end
 
 function getEverything()
 	local everything = {}
-	for k,v in pairs(GetPlayers()) do
+	for k,v in pairs(vRP.getUsers()) do
 		local char
-		local user = exports['qpixel-base']:getModule("Player"):GetUser(tonumber(v))
+		local xPlayer = vRP.getUserId(k)
 		local cash
-		local steamid 
-		if user then 
-			char = user:getCurrentCharacter() 
-			cash = user:getCash()
-			steamid = user:getVar("hexid")
-		end
+		-- local steamid 
+		-- if user then 
+		-- 	-- char = user:getCurrentCharacter() 
+		-- 	-- cash = user:getCash()
+		-- end
 		local pt = getPrioType(tonumber(v))
 		local fullname
 		local lastname
@@ -51,30 +50,23 @@ function getEverything()
 		local cid
 		local bank
 		if char then
-			cid = char.id
-			bank = char.bank
-			fullname = char.first_name .. ' ' .. char.last_name
-			firstname = char.first_name
-			lastname = char.last_name
-		else
-			cash = '0'
-			bank = '0'
-			cid = 'No Character CID'
-			fullname = 'No Character Name'
-			firstname = 'No Character Firstname'
-			lastname = 'No Character Surname'
+			cid = xPlayer
+			bank = vRP.getBankMoney(xPlayer)
+			cash = vRP.getMoney(xPlayer)
+			fullname = Player(src).state.char_info.nume .. ' ' .. Player(src).state.char_info.prenume
+			firstname = Player(src).state.char_info.nume
+			lastname = Player(src).state.char_info.prenume
 		end
 		everything[#everything+1] = {
-			["name"]          = GetPlayerName(tonumber(v)),
-            ["SteamID"]       = steamid,
-            ["serverID"]      = v,
-            ["queueType"]     = getPrioType(tonumber(v)),
-            ["charID"]        = cid,
-            ["charName"]      = fullname,
-			["charFirstname"] = firstname,
-			["charSurname"]   = lastname,
-			["charCash"]      = "$" .. cash,
-			["charBank"]      = "$" .. bank
+			["nume"]          = GetPlayerName(tonumber(v)),
+            ["serverID"]      = k,
+            ["queueType"]     = pt,
+            ["user_id"]        = cid,
+            ["Full Name"]      = fullname,
+			["Nume"] = firstname,
+			["Prenume"]   = lastname,
+			["Cash"]      = "$" .. cash,
+			["Bank"]      = "$" .. bank
 		}
 	end
 	return everything
@@ -90,7 +82,7 @@ function getBanList()
 	return BanList
 end
 
-RPC.register("getBanList", function(pSource)
+RPC.register("getBanList", function()
 	return BanList
 end)
 
@@ -115,7 +107,7 @@ function loadBanListMenu()
 				steamid = data[i].steam,
 				name = data[i].name,
 				license = data[i].license,
-				license2 = data[i].license2,
+				license2 = tonumber(data[i].license2),
 				xbox = data[i].xbox,
 				live = data[i].live,
 				cfx = data[i].cfx,
@@ -136,15 +128,10 @@ end
 exports('getIdentifier', getIdentifier)
 exports('getUserToken', getUserToken)
 
-function deletebanned(license) 
-	exports.oxmysql:execute(
-		'DELETE FROM bans WHERE license=@license',
-		{
-		  ['@license']  = license
-		},
-		function ()
+function deleteBan(user_id,license) 
+	exports.oxmysql:execute('DELETE FROM bans WHERE license=@license',{['@license']  = license}, function ()
 			loadBanListMenu()
 	end)
 end
 
-exports('deletebanned',deletebanned)
+exports('deletebanned',deleteBan)

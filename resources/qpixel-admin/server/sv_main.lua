@@ -1,7 +1,7 @@
 function isAdministrator(src)
-    local user = exports["qpixel-base"]:getModule("Player"):GetUser(src)
-	local rank = user:getRank()
-	if rank == "admin" or rank == "dev" or rank == "owner" then
+    local user = vRP.getUserId(src)
+	local rank = vRP.isUserAdministrator(user)
+	if rank then
         return true, rank
 	end
 
@@ -11,13 +11,12 @@ end
 exports("isAdministrator", isAdministrator)
 
 function giveLicense(src, license)
-    local user = exports["qpixel-base"]:getModule("Player"):GetUser(src)
+    local user = vRP.getUserId(src)
     if not user then return false end
-    local char = user:getCurrentCharacter()
 
     local update = Await(SQL.execute("UPDATE user_licenses SET status = @status WHERE cid = @cid AND type = @type", {
         ["@status"] = 1,
-        ["@cid"] = char.id,
+        ["@cid"] = user,
         ["@type"] = license
     }))
 
@@ -42,34 +41,6 @@ end
 
 exports("updateGarage", updateGarage)
 
-function giveJobWhitelist(src, job, rank)
-    local user = exports["qpixel-base"]:getModule("Player"):GetUser(src)
-    if not user then return false end
-    local char = user:getCurrentCharacter()
-
-    local update = Await(SQL.execute("INSERT INTO jobs_whitelist (cid, job, rank) VALUES (@cid, @job, @rank)", {
-        ["@cid"] = char.id,
-        ["@job"] = job,
-        ["@rank"] = rank
-    }))
-
-    if not update then return false end
-
-    return true
-end
-
-exports("giveJobWhitelist", giveJobWhitelist)
-
-function giveCash(src, amount)
-    local user = exports["qpixel-base"]:getModule("Player"):GetUser(src)
-    if not user then return false end
-    user:addMoney(tonumber(amount))
-
-    return true
-end
-
-exports("giveCash", giveCash)
-
 function sendLog(link, color, title, description, footer)
     local connect = {
         {
@@ -88,9 +59,9 @@ exports("sendLog", sendLog)
 
 RegisterNetEvent("qpixel:admin:searchPlayerInventory")
 AddEventHandler("qpixel:admin:searchPlayerInventory", function(pTarget)
-    local user = exports["qpixel-base"]:getModule("Player"):GetUser(tonumber(pTarget))
-    local cid = user:getCurrentCharacter().id
-    TriggerClientEvent("server-inventory-open", source, "1", 'ply-'..cid)
+    local user = vRP.getUserId(tonumber(pTarget))
+    -- local cid = user:getCurrentCharacter().id
+    TriggerClientEvent("server-inventory-open", source, "1", 'ply-'..user)
 end)
 
 RegisterServerEvent('qpixel-admin:insertPrio')

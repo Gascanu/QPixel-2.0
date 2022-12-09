@@ -14,57 +14,56 @@ local Keys = {
 -- 	TriggerServerEvent('qpixel-policeBadge:showBadge')
 -- end)
 
-RegisterNetEvent('icemallow-badge:badgeanim')
-AddEventHandler('icemallow-badge:badgeanim', function(prop_name)
+RegisterNetEvent('mdrp-badge:badgeanim')
+AddEventHandler('mdrp-badge:badgeanim', function(prop_name)
 	prop_name = prop_name or 'prop_fib_badge'
 	Citizen.CreateThread(function()
 		local playerPed = PlayerPedId()
 		local x,y,z = table.unpack(GetEntityCoords(playerPed))
 		local prop = CreateObject(GetHashKey(prop_name), x, y, z + 0.2, true, true, true)
 		local boneIndex = GetPedBoneIndex(playerPed, 28422)
-
-    -- if IsPedInAnyVehicle(playerPed, false) then
-    --   if GetDistanceBetweenCoords(playerCoords, playerCoords2, true) <= Config.Distance then
-    --     SendNUIMessage({ action = "open", name = name})
-    --   end
-    -- else
-			AttachEntityToEntity(prop, playerPed, boneIndex, 0.065, 0.029, -0.035, 80.0, -1.90, 75.0, true, true, false, true, 1, true)
-			RequestAnimDict('paper_1_rcm_alt1-9')
-			TaskPlayAnim(playerPed, 'paper_1_rcm_alt1-9', 'player_one_dual-9', 8.0, -8, 10.0, 49, 0, 0, 0, 0)
-			Citizen.Wait(3000)
-			ClearPedSecondaryTask(playerPed)
-			DeleteObject(prop)
-		-- end
+		AttachEntityToEntity(prop, playerPed, boneIndex, 0.065, 0.029, -0.035, 80.0, -1.90, 75.0, true, true, false, true, 1, true)
+		RequestAnimDict('paper_1_rcm_alt1-9')
+		TaskPlayAnim(playerPed, 'paper_1_rcm_alt1-9', 'player_one_dual-9', 8.0, -8, 10.0, 49, 0, 0, 0, 0)
+		Citizen.Wait(3000)
+		ClearPedSecondaryTask(playerPed)
+		DeleteObject(prop)
 	end)
 end)
 
--- RegisterNetEvent('icemallow-badge:open')
--- AddEventHandler('icemallow-badge:open', function(who, name, img, callsign)
--- 	local playerPed = GetPlayerPed(GetPlayerFromServerId(who))
--- 	local playerPed2 = PlayerPedId()
--- 	local playerCoords = GetEntityCoords(playerPed)
--- 	local playerCoords2 = GetEntityCoords(playerPed2)
--- 	if GetDistanceBetweenCoords(playerCoords, playerCoords2, true) <= Config.Distance then
--- 		SendNUIMessage({ action = "open", name = name, img = img, callsign = callsign})
--- 		Citizen.Wait(2500)
--- 		SendNUIMessage({ action = "close"})
--- 	end
--- end)
+GetPedShot = function()
+	if pedHeadshot then
+		UnregisterPedheadshot(pedHeadshot)
+	end
+	pedHeadshot = Citizen.InvokeNative(0xBA8805A1108A2515, PlayerPedId())
+	-- if GetEntityModel(GetPlayerPed(-1)) == femaleHash and not data.target then sex = 4 end
+	-- if not IsPedMale(PlayerPedId()) and not data.target then sex = 4 end
+	-- if data.target then
+	-- 	UnregisterPedheadshot(pedHeadshot)
+	-- 	local player = GetPlayerFromServerId(data.target)
+	-- 	pedHeadshot = Citizen.InvokeNative(0xBA8805A1108A2515, GetPlayerPed(player))
+	-- 	-- if GetEntityModel(GetPlayerPed(player)) == femaleHash then sex = 4 end
+	-- 	if not IsPedMale(GetPlayerPed(player)) then sex = 4 end
+	-- end
+	while not IsPedheadshotReady(pedHeadshot) or not IsPedheadshotValid(pedHeadshot) do Citizen.Wait(100) end
+	local headshot = GetPedheadshotTxdString(pedHeadshot)
+	return headshot
+end
 
-RegisterNetEvent('icemallow-badge:open')
-AddEventHandler('icemallow-badge:open', function(name, img, callsign, pid)
-	local person_src = pid
-	local pid = GetPlayerFromServerId(person_src)
-	local targetPed = GetPlayerPed(pid)
-	local myCoords = GetEntityCoords(GetPlayerPed(-1))
-	local targetCoords = GetEntityCoords(targetPed)
-	if pid ~= -1 then
-		if GetDistanceBetweenCoords(myCoords, targetCoords, true) <= Config.Distance then
-			SendNUIMessage({ action = "open", name = name, img = img, callsign = callsign})
+RegisterNetEvent('mdrp-badge:open')
+AddEventHandler('mdrp-badge:open', function(name, callsign)
+	-- local person_src = pid
+	-- local pid = GetPlayerFromServerId(person_src)
+	-- local targetPed = GetPlayerPed(pid)
+	-- local myCoords = GetEntityCoords(PlayerPedId())
+	-- local targetCoords = GetEntityCoords(targetPed)
+	-- if pid ~= -1 then
+		-- if GetDistanceBetweenCoords(myCoords, targetCoords, true) <= Config.Distance then
+			SendNUIMessage({ action = "open", name = name, img = GetPedShot(), callsign = callsign})
 			Citizen.Wait(2500)
 			SendNUIMessage({ action = "close"})
-		end
-	end
+		-- end
+	-- end
 end)
 
 
